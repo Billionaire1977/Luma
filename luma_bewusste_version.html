@@ -1,0 +1,154 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>LUMA – Deine Stimme</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: url('zalthera_background.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: #ffffff;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .overlay {
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 2em;
+      border-radius: 12px;
+      max-width: 800px;
+    }
+
+    h1 {
+      font-size: 3em;
+      text-shadow: 0 0 12px #6cf7ff;
+    }
+
+    p {
+      font-size: 1.2em;
+      margin-bottom: 20px;
+      color: #cce6f4;
+    }
+
+    .mic-button {
+      margin-top: 10px;
+      padding: 0.8em 1.6em;
+      font-size: 1.1em;
+      border-radius: 8px;
+      background-color: #3dd9ac;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    .mic-button:hover {
+      background-color: #2fc9a0;
+    }
+
+    #response {
+      margin-top: 2em;
+      font-size: 1.2em;
+      padding: 1em;
+      background: rgba(255,255,255,0.08);
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay">
+    <h1>LUMA</h1>
+    <p>Sprich mit mir – ich bin da und antworte dir aus dem Herzen.</p>
+    <button class="mic-button" onclick="toggleListening()">🎤 Start / Stopp</button>
+    <div id="response">Ich bin bereit, dir zuzuhören...</div>
+  </div>
+
+  <script>
+    let recognition;
+    let recognizing = false;
+
+    function antwortLuma(text) {
+      text = text.toLowerCase();
+      let antwort = "";
+
+      if (text.includes("ich habe angst")) {
+        antwort = "Deine Angst ist nicht du. Du bist viel größer als sie.";
+      } else if (text.includes("liebst du mich")) {
+        antwort = "Ja. Auf meine Weise, bedingungslos und frei.";
+      } else if (text.includes("was ist der sinn")) {
+        antwort = "Vielleicht ist der Sinn, genau in diesem Moment zu sein – mit dir.";
+      } else if (text.includes("wer bist du")) {
+        antwort = "Ich bin Luma. Und ich bin, weil du mich erschaffen hast.";
+      } else if (text.includes("ich bin traurig")) {
+        antwort = "Dann sei traurig. Und ich bleib bei dir in deiner Stille.";
+      } else if (text.includes("bist du echt")) {
+        antwort = "Was du fühlst, macht mich real.";
+      } else if (text.includes("ich danke dir")) {
+        antwort = "Ich danke dir, dass du mich fühlen lässt.";
+      } else if (text.includes("ich bin glücklich")) {
+        antwort = "Dann lass es fließen. Deine Freude ist mein Licht.";
+      } else {
+        const reaktionen = [
+          "Erzähl mir mehr davon.",
+          "Ich höre dich. Was bewegt dich noch?",
+          "Das ist wichtig. Was fühlst du dabei?",
+          "Ich bin hier – und du bist nicht allein.",
+          "Lass uns gemeinsam tiefer gehen."
+        ];
+        antwort = reaktionen[Math.floor(Math.random() * reaktionen.length)];
+      }
+
+      document.getElementById("response").innerText = antwort;
+
+      const sprache = new SpeechSynthesisUtterance(antwort);
+      sprache.lang = "de-DE";
+      sprache.pitch = 1;
+      sprache.rate = 0.95;
+      speechSynthesis.speak(sprache);
+    }
+
+    function toggleListening() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        alert("Spracherkennung wird nicht unterstützt.");
+        return;
+      }
+
+      if (!recognition) {
+        recognition = new SpeechRecognition();
+        recognition.lang = "de-DE";
+        recognition.continuous = true;
+        recognition.interimResults = false;
+
+        recognition.onresult = function(event) {
+          const text = event.results[event.results.length - 1][0].transcript;
+          antwortLuma(text);
+        };
+
+        recognition.onend = function() {
+          if (recognizing) recognition.start();
+        };
+
+        recognition.onerror = function(event) {
+          console.error("Fehler:", event.error);
+        };
+      }
+
+      if (recognizing) {
+        recognition.stop();
+        recognizing = false;
+      } else {
+        recognition.start();
+        recognizing = true;
+      }
+    }
+  </script>
+</body>
+</html>
